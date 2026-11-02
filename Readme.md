@@ -343,62 +343,103 @@ GET /api/admin/dashboard?fromDate=2026-09-01&toDate=2026-09-21
 
 ---
 
-# 🌍 External Transaction Import API
+[//]: # ()
+[//]: # (# 🌍 External Transaction Import API)
 
-### Import Transactions From External API
+[//]: # ()
+[//]: # (### Import Transactions From External API)
 
-**Endpoint:** `POST /api/transactions/import`
+[//]: # ()
+[//]: # (**Endpoint:** `POST /api/transactions/import`)
 
-Imports transaction records from an external transaction service.
+[//]: # ()
+[//]: # (Imports transaction records from an external transaction service.)
 
-**Request Body:**
+[//]: # ()
+[//]: # (**Request Body:**)
 
-```json
-{
-  "userId": 1,
-  "url": "https://weetech-practical.free.beeceptor.com/transactions"
-}
-```
+[//]: # ()
+[//]: # (```json)
 
-**External API:**
+[//]: # ({)
 
-```http
-GET https://weetech-practical.free.beeceptor.com/transactions
-```
+[//]: # (  "userId": 1,)
 
-**Business Logic:**
+[//]: # (  "url": "https://weetech-practical.free.beeceptor.com/transactions")
 
-- Fetches transaction records from the external API.
-- Maps external transaction fields to the application's transaction entity.
-- Supports CREDIT and DEBIT transactions.
-- Skips unsupported transaction types.
-- Validates transaction amounts and dates.
-- Imported transactions are saved with `SUCCESS` status.
-- Imported historical transactions do not automatically modify the user's current balance.
+[//]: # (})
 
-**Sample Response:**
+[//]: # (```)
 
-```json
-{
-  "importedCount": 2,
-  "skippedCount": 1,
-  "message": "External transactions imported successfully"
-}
-```
+[//]: # ()
+[//]: # (**External API:**)
 
----
+[//]: # ()
+[//]: # (```http)
 
-# ⚠️ Common HTTP Status Codes
+[//]: # (GET https://weetech-practical.free.beeceptor.com/transactions)
 
-| Status Code | Description |
-|---|---|
-| `200 OK` | Request completed successfully |
-| `201 Created` | Resource created successfully |
-| `400 Bad Request` | Invalid request data |
-| `404 Not Found` | Requested resource not found |
-| `500 Internal Server Error` | Unexpected server error |
+[//]: # (```)
 
----
+[//]: # ()
+[//]: # (**Business Logic:**)
+
+[//]: # ()
+[//]: # (- Fetches transaction records from the external API.)
+
+[//]: # (- Maps external transaction fields to the application's transaction entity.)
+
+[//]: # (- Supports CREDIT and DEBIT transactions.)
+
+[//]: # (- Skips unsupported transaction types.)
+
+[//]: # (- Validates transaction amounts and dates.)
+
+[//]: # (- Imported transactions are saved with `SUCCESS` status.)
+
+[//]: # (- Imported historical transactions do not automatically modify the user's current balance.)
+
+[//]: # ()
+[//]: # (**Sample Response:**)
+
+[//]: # ()
+[//]: # (```json)
+
+[//]: # ({)
+
+[//]: # (  "importedCount": 2,)
+
+[//]: # (  "skippedCount": 1,)
+
+[//]: # (  "message": "External transactions imported successfully")
+
+[//]: # (})
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (---)
+
+[//]: # ()
+[//]: # (# ⚠️ Common HTTP Status Codes)
+
+[//]: # ()
+[//]: # (| Status Code | Description |)
+
+[//]: # (|---|---|)
+
+[//]: # (| `200 OK` | Request completed successfully |)
+
+[//]: # (| `201 Created` | Resource created successfully |)
+
+[//]: # (| `400 Bad Request` | Invalid request data |)
+
+[//]: # (| `404 Not Found` | Requested resource not found |)
+
+[//]: # (| `500 Internal Server Error` | Unexpected server error |)
+
+[//]: # ()
+[//]: # (---)
 
 # 📋 Business Rules
 
@@ -410,8 +451,10 @@ GET https://weetech-practical.free.beeceptor.com/transactions
 6. Transactions have three statuses: `PENDING`, `SUCCESS`, and `FAILED`.
 7. Soft-deleted transactions are excluded from normal transaction listings and dashboard statistics.
 8. Transaction summaries calculate successful credit and debit amounts.
-9. External transaction imports support CREDIT and DEBIT types.
-10. Imported historical transactions do not automatically change the current account balance.
+
+[//]: # (9. External transaction imports support CREDIT and DEBIT types.)
+
+[//]: # (10. Imported historical transactions do not automatically change the current account balance.)
 
 ---
 
@@ -420,13 +463,7 @@ GET https://weetech-practical.free.beeceptor.com/transactions
 - [ ] Spring Security and JWT Authentication.
 - [ ] Role-based authorization for ADMIN and USER.
 - [ ] Global Exception Handling.
-- [ ] Fund transfers between users.
-- [ ] Transaction pagination and sorting.
-- [ ] Transaction reversal and refund functionality.
-- [ ] Monthly transaction statements.
-- [ ] Email notifications.
-- [ ] Duplicate prevention during external transaction imports.
-
+- [ ] External Transaction Import.
 ---
 
 # 👨‍💻 Author
@@ -442,5 +479,3 @@ Developed using:
 - MySQL
 
 ---
-
-⭐ If you find this project useful, consider giving it a star on GitHub!
