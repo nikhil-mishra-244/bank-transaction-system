@@ -10,6 +10,7 @@ import com.weetech.bank_transaction_system.enums.TransactionTypes;
 import com.weetech.bank_transaction_system.repository.TransactionRepository;
 import com.weetech.bank_transaction_system.repository.UserRepository;
 import com.weetech.bank_transaction_system.specification.TransactionSpecification;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -149,24 +150,27 @@ public class TransactionService {
     }
 
 
-    // Get User Balance
-    public TransactionSummaryDTO getTransactionSummary(Long userId){
+    //    Soft Delete Transaction
+    @Transactional
+    public void deleteTransaction(Long userId, Long transactionId) {
+
+        Transactions transaction = transactionRepository
+                .findByIdAndUserIdAndDeletedFalse(transactionId, userId)
+                .orElseThrow(() ->
+                        new RuntimeException("Transaction not found"));
+
+        transaction.setDeleted(true);
+
+        transactionRepository.save(transaction);
+    }
+
+
+    // Get User Balance  Summary
+    public TransactionSummaryDTO getTransactionSummary(Long userId) {
 
         Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
 
         List<Transactions> transactions = user.getTransactions().stream().filter(transaction -> !transaction.isDeleted()).toList();
-
-//        BigDecimal totalCredit = transactions.stream()
-//                .filter(t -> t.getTransactionType() == TransactionTypes.CREDIT)
-//                .filter(t -> t.getStatus() == TransactionStatus.SUCCESS)
-//                .map(Transactions::getAmount)
-//                .reduce(BigDecimal.ZERO,BigDecimal::add);
-//
-//        BigDecimal totalDebit = transactions.stream()
-//                .filter(t -> t.getTransactionType() == TransactionTypes.DEBIT)
-//                .filter(t -> t.getStatus() == TransactionStatus.SUCCESS)
-//                .map(Transactions::getAmount)
-//                .reduce(BigDecimal.ZERO,BigDecimal::add);
 
         long successful = transactions.stream()
                 .filter(t -> t.getStatus() == TransactionStatus.SUCCESS)
@@ -193,5 +197,14 @@ public class TransactionService {
 
     }
 
+    //    Get User Balance
+    public BigDecimal getBalance(Long userId) {
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        return user.getBalance();
+    }
 
 }

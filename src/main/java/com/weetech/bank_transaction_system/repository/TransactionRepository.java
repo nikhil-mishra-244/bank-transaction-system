@@ -1,5 +1,6 @@
 package com.weetech.bank_transaction_system.repository;
 
+import com.weetech.bank_transaction_system.dto.AdminDashboardDTO;
 import com.weetech.bank_transaction_system.entity.Transactions;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

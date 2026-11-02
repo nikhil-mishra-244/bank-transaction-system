@@ -13,11 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/users/{userId}/transactions")
+@RequestMapping("/api/v1/users/{userId}")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -28,7 +30,7 @@ public class TransactionController {
 
 
     // Create new transaction
-    @PostMapping
+    @PostMapping("/transactions")
     public ResponseEntity<TransactionResponseDTO> createTransaction(@PathVariable Long userId, @Valid @RequestBody TransactionRequestDTO requestDTO) {
 
         TransactionResponseDTO response = transactionService.createTransaction(userId, requestDTO);
@@ -37,32 +39,42 @@ public class TransactionController {
     }
 
 
-    // Get all transactions of a user
-//    @GetMapping
-//    public ResponseEntity<List<TransactionResponseDTO>> fetchAllTransactions(@PathVariable Long userId) {
-//        return ResponseEntity.ok(transactionService.fetchAllTransactions(userId));
-//    }
-
-
-    @GetMapping
+    //    Get All Transactions
+    @GetMapping("/transactions")
     public ResponseEntity<List<TransactionResponseDTO>> getAllOrFilteredTransactions(
 
-            @PathVariable Long userId,
-            @RequestParam(required = false) TransactionTypes type,
-            @RequestParam(required = false) TransactionStatus status,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+            @PathVariable Long userId, @RequestParam(required = false) TransactionTypes type, @RequestParam(required = false) TransactionStatus status, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
         List<TransactionResponseDTO> transactions = transactionService.filterTransactions(userId, type, status, startDate, endDate);
 
         return ResponseEntity.ok(transactions);
     }
 
+
+    //    Transaction Delete
+    @DeleteMapping("/transactions/{transactionId}")
+    public ResponseEntity<String> deleteTransaction(
+
+            @PathVariable Long userId, @PathVariable Long transactionId) {
+
+        transactionService.deleteTransaction(userId, transactionId);
+
+        return ResponseEntity.ok("Transaction deleted successfully");
+    }
+
+    //    Get User Balance Summary
+    @GetMapping("/transactions/summary")
+    public ResponseEntity<TransactionSummaryDTO> getTransactionSummary(@PathVariable Long userId) {
+        return ResponseEntity.ok(transactionService.getTransactionSummary(userId));
+    }
+
+    //    Get User Balance Summary
     @GetMapping("/balance")
-    public ResponseEntity<TransactionSummaryDTO> getTransactionSummary( @PathVariable Long userId) {
-        return ResponseEntity.ok(
-                transactionService.getTransactionSummary(userId)
-        );
+    public ResponseEntity<Map<String, BigDecimal>> getBalance(@PathVariable Long userId) {
+
+        BigDecimal balance = transactionService.getBalance(userId);
+
+        return ResponseEntity.ok(Map.of("balance", balance));
     }
 
 }
