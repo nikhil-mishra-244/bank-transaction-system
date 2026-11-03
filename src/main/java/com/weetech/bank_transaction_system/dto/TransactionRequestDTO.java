@@ -1,11 +1,13 @@
+
 package com.weetech.bank_transaction_system.dto;
 
 import com.weetech.bank_transaction_system.enums.TransactionTypes;
+
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.math.BigDecimal;
 
 public class TransactionRequestDTO {
 
@@ -13,13 +15,17 @@ public class TransactionRequestDTO {
     private TransactionTypes transactionType;
 
     @NotNull(message = "Amount is required")
-    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
+    @DecimalMin(
+            value = "0.01",
+            message = "Amount must be greater than zero"
+    )
     private BigDecimal amount;
 
-    @Size(max = 255, message = "Description cannot exceed 255 characters")
+    @Size(
+            max = 255,
+            message = "Description cannot exceed 255 characters"
+    )
     private String description;
-
-
 
     public TransactionTypes getTransactionType() {
         return transactionType;

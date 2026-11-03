@@ -1,12 +1,14 @@
+
 package com.weetech.bank_transaction_system.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.weetech.bank_transaction_system.enums.TransactionStatus;
 import com.weetech.bank_transaction_system.enums.TransactionTypes;
-import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "transactions")
@@ -32,10 +34,11 @@ public class Transactions {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionStatus status;
+
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
-    private boolean deleted = false;
 
+    private boolean deleted = false;
 
     public Transactions() {
     }
@@ -137,7 +140,4 @@ public class Transactions {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
-
-
-
 }

@@ -1,3 +1,4 @@
+
 package com.weetech.bank_transaction_system.dto;
 
 import com.weetech.bank_transaction_system.enums.TransactionStatus;
@@ -18,7 +19,14 @@ public class TransactionResponseDTO {
     public TransactionResponseDTO() {
     }
 
-    public TransactionResponseDTO(Long id, TransactionTypes transactionType, BigDecimal amount, String description, TransactionStatus status, LocalDateTime transactionDate) {
+    public TransactionResponseDTO(
+            Long id,
+            TransactionTypes transactionType,
+            BigDecimal amount,
+            String description,
+            TransactionStatus status,
+            LocalDateTime transactionDate
+    ) {
         this.id = id;
         this.transactionType = transactionType;
         this.amount = amount;

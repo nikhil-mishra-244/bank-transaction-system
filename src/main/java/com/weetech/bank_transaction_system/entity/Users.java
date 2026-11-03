@@ -1,17 +1,21 @@
+
 package com.weetech.bank_transaction_system.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.weetech.bank_transaction_system.enums.Role;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
@@ -21,14 +25,17 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 3, message = "Name Should have atleast 3 Characters")
+    @Size(
+            min = 3,
+            message = "Name Should have atleast 3 Characters"
+    )
     private String name;
 
     @Email(message = "Please provide a valid email")
     @Column(nullable = false, unique = true)
     private String email;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -57,7 +64,13 @@ public class Users {
     public Users() {
     }
 
-    public Users(String name, String email, String password, Role role,BigDecimal balance) {
+    public Users(
+            String name,
+            String email,
+            String password,
+            Role role,
+            BigDecimal balance
+    ) {
         this.name = name;
         this.email = email;
         this.password = password;
