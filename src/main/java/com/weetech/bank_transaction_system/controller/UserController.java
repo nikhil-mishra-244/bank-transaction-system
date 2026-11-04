@@ -1,16 +1,14 @@
 package com.weetech.bank_transaction_system.controller;
 
-import com.weetech.bank_transaction_system.dto.LoginRequestDTO;
-import com.weetech.bank_transaction_system.dto.LoginResponseDTO;
-import com.weetech.bank_transaction_system.entity.Users;
+import com.weetech.bank_transaction_system.dto.ChangePasswordRequestDTO;
+import com.weetech.bank_transaction_system.dto.ProfileUpdateRequestDTO;
+import com.weetech.bank_transaction_system.dto.ProfileUpdateResponseDTO;
+import com.weetech.bank_transaction_system.dto.UserProfileResponseDTO;
 import com.weetech.bank_transaction_system.service.UserService;
 
-import java.util.List;
-import java.util.Map;
-
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,38 +22,50 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Register new user
-    @PostMapping("/register")
-    public ResponseEntity<Void> registerUser(@Valid @RequestBody Users user) {
 
-        userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileResponseDTO> getUserProfile(
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return userService.getUserProfile(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Login User
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO requestDTO) {
-        return ResponseEntity.ok(userService.loginUser(requestDTO)
+
+    @PutMapping("/profile")
+    public ResponseEntity<ProfileUpdateResponseDTO> updateProfile(
+            Authentication authentication,
+            @Valid @RequestBody ProfileUpdateRequestDTO requestDTO
+    ) {
+
+        return ResponseEntity.ok(
+                userService.updateProfile(authentication, requestDTO)
         );
     }
 
-    // Get all users
-    @GetMapping
-    public ResponseEntity<List<Users>> getAllUsers() {
-        return ResponseEntity.ok(userService.fetchAllUser());
+
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequestDTO requestDTO
+    ) {
+
+        userService.changePassword(authentication, requestDTO);
+
+        return ResponseEntity.ok("Password changed successfully");
     }
 
-    // Get user by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Users> getUserById(@PathVariable Long id) {
-        return userService.fetchById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+
+        return ResponseEntity.ok(
+                "Logout successful"
+        );
     }
 
-    // Delete user
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
-        userService.removeUser(id);
-        return ResponseEntity.noContent().build();
-    }
 }

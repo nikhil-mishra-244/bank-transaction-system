@@ -7,9 +7,6 @@ public class LoginResponseDTO {
     private String tokenType;
     private String message;
 
-    public LoginResponseDTO() {
-    }
-
     public LoginResponseDTO(
             String token,
             String tokenType,

@@ -11,6 +11,8 @@ import com.weetech.bank_transaction_system.repository.TransactionRepository;
 import com.weetech.bank_transaction_system.repository.UserRepository;
 import com.weetech.bank_transaction_system.specification.TransactionSpecification;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -103,7 +105,7 @@ public class TransactionService {
 
 
     // Filter Transactions
-    public List<TransactionResponseDTO> filterTransactions(Long userId, TransactionTypes type, TransactionStatus status, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<TransactionResponseDTO> filterTransactions(Long userId, TransactionTypes type, TransactionStatus status, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
 
         // Check user exists
         userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
@@ -143,10 +145,10 @@ public class TransactionService {
         }
 
         // Fetch filtered transactions
-        List<Transactions> transactions = transactionRepository.findAll(specification, Sort.by(Sort.Direction.DESC, "transactionDate"));
+        Page<Transactions> transactions = transactionRepository.findAll(specification, pageable);
 
         // Convert Entity to DTO
-        return transactions.stream().map(this::convertToDTO).toList();
+        return transactions.map(this::convertToDTO).toList();
     }
 
 
