@@ -1,5 +1,6 @@
 package com.weetech.bank_transaction_system.service;
 
+import com.weetech.bank_transaction_system.dto.ExternalTransactionDTO;
 import com.weetech.bank_transaction_system.dto.TransactionRequestDTO;
 import com.weetech.bank_transaction_system.dto.TransactionResponseDTO;
 import com.weetech.bank_transaction_system.dto.TransactionSummaryDTO;
@@ -27,10 +28,12 @@ public class TransactionService {
 
     private TransactionRepository transactionRepository;
     private UserRepository userRepository;
+    private final ExternalTransactionClient externalClient;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, ExternalTransactionClient externalClient) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
+        this.externalClient = externalClient;
     }
 
 
@@ -156,10 +159,7 @@ public class TransactionService {
     @Transactional
     public void deleteTransaction(Long userId, Long transactionId) {
 
-        Transactions transaction = transactionRepository
-                .findByIdAndUserIdAndDeletedFalse(transactionId, userId)
-                .orElseThrow(() ->
-                        new RuntimeException("Transaction not found"));
+        Transactions transaction = transactionRepository.findByIdAndUserIdAndDeletedFalse(transactionId, userId).orElseThrow(() -> new RuntimeException("Transaction not found"));
 
         transaction.setDeleted(true);
 
@@ -174,27 +174,13 @@ public class TransactionService {
 
         List<Transactions> transactions = user.getTransactions().stream().filter(transaction -> !transaction.isDeleted()).toList();
 
-        long successful = transactions.stream()
-                .filter(t -> t.getStatus() == TransactionStatus.SUCCESS)
-                .count();
+        long successful = transactions.stream().filter(t -> t.getStatus() == TransactionStatus.SUCCESS).count();
 
-        long failed = transactions.stream()
-                .filter(t -> t.getStatus() == TransactionStatus.FAILED)
-                .count();
+        long failed = transactions.stream().filter(t -> t.getStatus() == TransactionStatus.FAILED).count();
 
-        long pending = transactions.stream()
-                .filter(t -> t.getStatus() == TransactionStatus.PENDING)
-                .count();
+        long pending = transactions.stream().filter(t -> t.getStatus() == TransactionStatus.PENDING).count();
 
-        return new TransactionSummaryDTO(
-                user.getTotalIncome(),
-                user.getTotalExpenses(),
-                user.getBalance(),
-                (long) transactions.size(),
-                successful,
-                failed,
-                pending
-        );
+        return new TransactionSummaryDTO(user.getTotalIncome(), user.getTotalExpenses(), user.getBalance(), (long) transactions.size(), successful, failed, pending);
 
 
     }
@@ -202,11 +188,28 @@ public class TransactionService {
     //    Get User Balance
     public BigDecimal getBalance(Long userId) {
 
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+        Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         return user.getBalance();
     }
+
+
+    // External Transaction Import
+    public void importTransactions(Long userId, String url) {
+
+        List<ExternalTransactionDTO> transactions = externalClient.fetchTransactions(url);
+
+        for (ExternalTransactionDTO transaction : transactions) {
+
+            TransactionRequestDTO request = new TransactionRequestDTO();
+
+            request.setAmount(transaction.getAmount());
+            request.setTransactionType(transaction.getTransactionType());
+            request.setDescription(transaction.getDescription());
+
+            this.createTransaction(userId, request);
+        }
+    }
+
 
 }

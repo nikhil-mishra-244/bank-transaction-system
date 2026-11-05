@@ -1,125 +1,113 @@
 
-# 🏦 Bank Transaction System
+# 🏦 Bank Transaction Management System
 
-A **Bank Transaction System** built using Java, Spring Boot, Spring Data JPA, Hibernate, and MySQL. This application provides REST APIs to manage users, handle banking transactions, track account balances, generate transaction summaries, and view administrative dashboard analytics.
+A RESTful backend application developed using **Java 17 and Spring Boot** to manage users, banking transactions, account balances, and transaction history.
 
-It also supports importing historical transactions from external APIs.
+The application supports secure authentication, CREDIT and DEBIT transactions, transaction filtering, administrative statistics, and importing transactions from an external API.
 
-## 📌 Table of Contents
+## 🚀 Features
 
-- [Overview](#-overview)
-- [Technologies Used](#-technologies-used)
-- [Base URL](#-base-url)
-- [User Management APIs](#-user-management-apis)
-- [Transaction Management APIs](#-transaction-management-apis)
-- [Transaction Summary API](#-transaction-summary-api)
-- [Current Balance API](#-current-balance-api)
-- [Admin Dashboard APIs](#-admin-dashboard-apis)
-- [External Transaction Import API](#-external-transaction-import-api)
-- [Common HTTP Status Codes](#-common-http-status-codes)
-- [Business Rules](#-business-rules)
-- [Future Enhancements](#-future-enhancements)
-- [Author](#-author)
-
----
-
-## 🚀 Overview
-
-The Bank Transaction System is a Spring Boot REST API application that allows users to:
-
-- Register and manage user accounts.
+- User registration and management.
+- JWT-based authentication and authorization.
+- Role-based access control.
 - Create CREDIT and DEBIT transactions.
-- Track current account balances.
-- View transaction history.
+- Automatic account balance updates.
+- Transaction history and filtering.
 - Filter transactions by type, status, and date range.
 - Soft delete transactions.
-- Generate transaction summaries.
-- View administrative dashboard analytics.
-- Import historical transactions from external APIs.
+- View current account balance.
+- Transaction summary and statistics.
+- Admin dashboard.
+- Import transactions from an external API using Beeceptor.
+- Request validation and error handling.
 
----
+## 🛠️ Technologies Used
 
-## 🛠 Technologies Used
-
-| Technology | Description |
+| Technology | Purpose |
 |---|---|
-| Java | Backend programming language |
-| Spring Boot | Application framework |
-| Spring Data JPA | Database interaction |
+| Java 17 | Programming language |
+| Spring Boot | Backend framework |
+| Spring Web | REST API development |
+| Spring Data JPA | Database operations |
 | Hibernate | ORM framework |
-| MySQL | Relational database |
-| REST APIs | API communication |
-| Maven | Dependency management |
+| MySQL | Database |
+| Spring Security | Authentication and authorization |
+| JWT | Token-based authentication |
 | Jakarta Validation | Request validation |
+| Maven | Dependency management |
+| Postman | API testing |
+| Beeceptor | External API mocking |
 
----
+## 📁 Project Structure
 
-## 🌐 Base URL
+```text
+src/main/java/
+└── com/example/banktransaction/
+    ├── config/
+    ├── controller/
+    ├── dto/
+    ├── entity/
+    ├── exception/
+    ├── repository/
+    ├── security/
+    ├── service/
+    └── BankTransactionApplication.java
 
-```http
+src/main/resources/
+└── application.properties
+```
+
+## 🌐 API Endpoints
+
+**Base URL:**
+
+```text
 http://localhost:8080
 ```
 
----
+### 👤 User Management
 
-# 👤 User Management APIs
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/v1/users/register` | Register a new user |
+| GET | `/api/v1/users` | Get all users |
+| GET | `/api/v1/users/{id}` | Get user by ID |
+| DELETE | `/api/v1/users/{id}` | Delete a user |
 
-**Base Endpoint:** `/api/v1/users`
+### 🔐 Authentication
 
-### 1. Create User
-
-**Endpoint:** `POST /api/v1/users`
-
-Creates a new user account.
-
-**Request Body:**
-
-```json
-{
-  "name": "Jay Patel",
-  "email": "jay.patel@example.com",
-  "password": "Jay@12345",
-  "role": "USER"
-}
-```
-
-**Success Response:** `201 Created`
-
-### 2. Get All Users
-
-**Endpoint:** `GET /api/v1/users`
-
-Retrieves all registered users.
-
-**Success Response:** `200 OK`
-
-### 3. Get User By ID
-
-**Endpoint:** `GET /api/v1/users/{userId}`
-
-Retrieves user details using the user ID.
-
-**Example:**
+Protected endpoints require a valid JWT token.
 
 ```http
-GET /api/v1/users/1
+Authorization: Bearer <your-jwt-token>
 ```
 
----
+### 💳 Transaction Management
 
-# 💳 Transaction Management APIs
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/v1/transactions` | Create a transaction |
+| GET | `/api/v1/transactions` | Get transaction history |
+| DELETE | `/api/v1/transactions/{transactionId}` | Soft-delete a transaction |
+| GET | `/api/v1/transactions/summary` | Get transaction summary |
+| GET | `/api/v1/transactions/balance` | Get current balance |
+| POST | `/api/v1/transactions/import` | Import external transactions |
 
-**Base Endpoint:**
+### 📊 Admin Dashboard
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/admin/dashboard` | Get system-wide statistics |
+
+## 📝 Transaction Examples
+
+### Create Transaction
+
+**Endpoint:**
 
 ```http
-/api/v1/users/{userId}/transactions
+POST /api/v1/transactions
 ```
-
-### 1. Create Transaction
-
-**Endpoint:** `POST /api/v1/users/{userId}/transactions`
-
-Creates a new CREDIT or DEBIT transaction.
 
 **Request Body:**
 
@@ -131,112 +119,43 @@ Creates a new CREDIT or DEBIT transaction.
 }
 ```
 
-**Supported Transaction Types:**
+**Transaction Types:**
 
-- `CREDIT`
-- `DEBIT`
+- `CREDIT` – Adds money to the account.
+- `DEBIT` – Deducts money from the account.
 
-**Transaction Status:**
+**Transaction Statuses:**
 
 - `PENDING`
 - `SUCCESS`
 - `FAILED`
 
-**Business Logic:**
+### Filter Transactions
 
-- Transaction amount must be greater than zero.
-- CREDIT transactions increase the account balance.
-- DEBIT transactions decrease the account balance.
-- DEBIT transactions fail when the user has insufficient balance.
-- Transaction status is updated according to the processing result.
-- Failed transactions do not affect the account balance.
+Transactions can be filtered by type, status, and date range.
 
-**Success Response:** `201 Created`
-
-### 2. Get All User Transactions
-
-**Endpoint:** `GET /api/v1/users/{userId}/transactions`
-
-Retrieves all non-deleted transactions belonging to a user.
-
-**Success Response:** `200 OK`
-
-### 3. Filter Transactions
-
-**Endpoint:** `GET /api/v1/users/{userId}/transactions`
-
-Supports filtering transactions using query parameters.
-
-| Parameter | Description | Example |
-|---|---|---|
-| `type` | CREDIT or DEBIT | `type=CREDIT` |
-| `status` | SUCCESS, FAILED or PENDING | `status=SUCCESS` |
-| `startDate` | Starting transaction date | `startDate=2026-11-01T00:00:00` |
-| `endDate` | Ending transaction date | `endDate=2026-11-30T23:59:59` |
-
-**Filter by Transaction Type:**
-
-```http
-GET /api/v1/users/1/transactions?type=CREDIT
-```
-
-**Filter by Transaction Status:**
-
-```http
-GET /api/v1/users/1/transactions?status=SUCCESS
-```
-
-**Filter by Date Range:**
-
-```http
-GET /api/v1/users/1/transactions?startDate=2026-11-01T00:00:00&endDate=2026-11-30T23:59:59
-```
-
-**Combine Multiple Filters:**
-
-```http
-GET /api/v1/users/1/transactions?type=DEBIT&status=SUCCESS&startDate=2026-11-01T00:00:00&endDate=2026-11-30T23:59:59
-```
-
-### 4. Soft Delete Transaction
-
-**Endpoint:** `DELETE /api/v1/users/{userId}/transactions/{transactionId}`
-
-Soft deletes a transaction instead of permanently removing it from the database.
+| Parameter | Example |
+|---|---|
+| type | `CREDIT` |
+| status | `SUCCESS` |
+| startDate | `2026-11-01T00:00:00` |
+| endDate | `2026-11-30T23:59:59` |
 
 **Example:**
 
 ```http
-DELETE /api/v1/users/1/transactions/4
+GET /api/v1/transactions?type=DEBIT&status=SUCCESS
 ```
 
-**Business Logic:**
+### Transaction Summary
 
-- Sets the `deleted` field to `true`.
-- Deleted transactions are excluded from normal transaction listings.
-- A user can only delete their own transaction.
-- Transaction records remain stored in the database.
-- Deleting a transaction does not automatically reverse the account balance.
-
-**Success Response:** `200 OK`
-
----
-
-# 📊 Transaction Summary API
-
-### Get Transaction Summary
-
-**Endpoint:** `GET /api/v1/users/{userId}/transactions/summary`
-
-Provides transaction analytics for an individual user.
-
-**Example:**
+**Endpoint:**
 
 ```http
-GET /api/v1/users/1/transactions/summary
+GET /api/v1/transactions/summary
 ```
 
-**Sample Response:**
+**Example Response:**
 
 ```json
 {
@@ -250,232 +169,165 @@ GET /api/v1/users/1/transactions/summary
 }
 ```
 
-**Response Fields:**
+### Current Balance
 
-| Field | Description |
+```http
+GET /api/v1/transactions/balance
+```
+
+Returns the current authenticated user's account balance.
+
+## 🌍 External Transaction Import
+
+The application supports importing transactions from an external REST API using Beeceptor.
+
+**Endpoint:**
+
+```http
+POST /api/v1/transactions/import
+```
+
+**Request Body:**
+
+```json
+{
+  "url": "https://weetech-practical.free.beeceptor.com/transactions"
+}
+```
+
+**Sample External API Response:**
+
+```json
+[
+  {
+    "externalId": "EXT101",
+    "amount": 1500.00,
+    "transactionType": "CREDIT",
+    "description": "Salary",
+    "transactionDate": "2026-11-05T10:30:00"
+  },
+  {
+    "externalId": "EXT102",
+    "amount": 500.00,
+    "transactionType": "DEBIT",
+    "description": "Shopping",
+    "transactionDate": "2026-11-05T11:30:00"
+  }
+]
+```
+
+**Import Process:**
+
+1. The authenticated user sends the external API URL.
+2. The application fetches transaction data.
+3. The response is mapped to the transaction DTO.
+4. Transactions are processed using the existing transaction creation logic.
+5. Account balances are updated according to transaction types.
+
+**Implementation Notes:**
+
+- The user ID is obtained from the JWT authentication principal.
+- External transaction IDs are not stored in the database.
+- Transaction dates are not currently mapped during import.
+- Imported transactions follow existing CREDIT and DEBIT business rules.
+- Only trusted external API URLs should be used.
+
+## 📋 Business Rules
+
+- Transaction amounts must be greater than zero.
+- CREDIT transactions increase the account balance.
+- DEBIT transactions decrease the account balance.
+- DEBIT transactions require sufficient account balance.
+- FAILED transactions do not affect the account balance.
+- Transactions support PENDING, SUCCESS, and FAILED statuses.
+- Deleted transactions are soft-deleted.
+- Users can access their own transaction information according to authorization rules.
+- Administrative APIs are restricted according to user roles.
+
+## 📡 HTTP Status Codes
+
+| Status Code | Description |
 |---|---|
-| `totalCredit` | Total successful credit amount |
-| `totalDebit` | Total successful debit amount |
-| `currentBalance` | Current account balance |
-| `totalTransactions` | Total non-deleted transactions |
-| `successfulTransactions` | Number of successful transactions |
-| `failedTransactions` | Number of failed transactions |
-| `pendingTransactions` | Number of pending transactions |
-
----
-
-# 💰 Current Balance API
-
-### Get Current Balance
-
-**Endpoint:** `GET /api/v1/users/{userId}/balance`
-
-Retrieves the current account balance of a user.
-
-**Example:**
-
-```http
-GET /api/v1/users/1/balance
-```
-
-**Sample Response:**
-
-```json
-{
-  "balance": 38000.00
-}
-```
-
----
-
-# 📈 Admin Dashboard APIs
-
-**Base Endpoint:** `/api/admin`
-
-### 1. Get Admin Dashboard
-
-**Endpoint:** `GET /api/admin/dashboard`
-
-Provides overall banking system analytics.
-
-**Dashboard Information:**
-
-- Total number of registered users.
-- Total number of transactions.
-- Total successful transaction amount.
-
-**Example:**
-
-```http
-GET /api/admin/dashboard
-```
-
-**Sample Response:**
-
-```json
-{
-  "totalUsers": 5,
-  "totalTransactions": 15,
-  "totalTransactionAmount": 185000.00
-}
-```
-
-### 2. Admin Dashboard With Date Range
-
-**Endpoint:** `GET /api/admin/dashboard`
-
-Supports date-range filtering for transaction statistics.
-
-**Example:**
-
-```http
-GET /api/admin/dashboard?fromDate=2026-09-01&toDate=2026-09-21
-```
-
-**Business Logic:**
-
-- Total users represent all registered users.
-- Transaction count includes all non-deleted transactions within the selected date range.
-- Transaction amount includes only successful transactions.
-- Transactions are filtered using their transaction date.
-
-**Note:** Admin-only authorization is planned for implementation using Spring Security.
-
----
-
-[//]: # ()
-[//]: # (# 🌍 External Transaction Import API)
-
-[//]: # ()
-[//]: # (### Import Transactions From External API)
-
-[//]: # ()
-[//]: # (**Endpoint:** `POST /api/transactions/import`)
-
-[//]: # ()
-[//]: # (Imports transaction records from an external transaction service.)
-
-[//]: # ()
-[//]: # (**Request Body:**)
-
-[//]: # ()
-[//]: # (```json)
-
-[//]: # ({)
-
-[//]: # (  "userId": 1,)
-
-[//]: # (  "url": "https://weetech-practical.free.beeceptor.com/transactions")
-
-[//]: # (})
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (**External API:**)
-
-[//]: # ()
-[//]: # (```http)
-
-[//]: # (GET https://weetech-practical.free.beeceptor.com/transactions)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (**Business Logic:**)
-
-[//]: # ()
-[//]: # (- Fetches transaction records from the external API.)
-
-[//]: # (- Maps external transaction fields to the application's transaction entity.)
-
-[//]: # (- Supports CREDIT and DEBIT transactions.)
-
-[//]: # (- Skips unsupported transaction types.)
-
-[//]: # (- Validates transaction amounts and dates.)
-
-[//]: # (- Imported transactions are saved with `SUCCESS` status.)
-
-[//]: # (- Imported historical transactions do not automatically modify the user's current balance.)
-
-[//]: # ()
-[//]: # (**Sample Response:**)
-
-[//]: # ()
-[//]: # (```json)
-
-[//]: # ({)
-
-[//]: # (  "importedCount": 2,)
-
-[//]: # (  "skippedCount": 1,)
-
-[//]: # (  "message": "External transactions imported successfully")
-
-[//]: # (})
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (---)
-
-[//]: # ()
-[//]: # (# ⚠️ Common HTTP Status Codes)
-
-[//]: # ()
-[//]: # (| Status Code | Description |)
-
-[//]: # (|---|---|)
-
-[//]: # (| `200 OK` | Request completed successfully |)
-
-[//]: # (| `201 Created` | Resource created successfully |)
-
-[//]: # (| `400 Bad Request` | Invalid request data |)
-
-[//]: # (| `404 Not Found` | Requested resource not found |)
-
-[//]: # (| `500 Internal Server Error` | Unexpected server error |)
-
-[//]: # ()
-[//]: # (---)
-
-# 📋 Business Rules
-
-1. Transaction amounts must be positive.
-2. Users cannot debit more than their available balance.
-3. CREDIT transactions increase the user's balance.
-4. DEBIT transactions decrease the user's balance.
-5. Failed transactions must not affect the user's balance.
-6. Transactions have three statuses: `PENDING`, `SUCCESS`, and `FAILED`.
-7. Soft-deleted transactions are excluded from normal transaction listings and dashboard statistics.
-8. Transaction summaries calculate successful credit and debit amounts.
-
-[//]: # (9. External transaction imports support CREDIT and DEBIT types.)
-
-[//]: # (10. Imported historical transactions do not automatically change the current account balance.)
-
----
-
-# 🔮 Future Enhancements
-
-- [ ] Spring Security and JWT Authentication.
-- [ ] Role-based authorization for ADMIN and USER.
-- [ ] Global Exception Handling.
-- [ ] External Transaction Import.
----
-
-# 👨‍💻 Author
-
-**Bank Transaction System**
-
-Developed using:
-
-- Java
-- Spring Boot
-- Spring Data JPA
-- Hibernate
+| 200 OK | Request successful |
+| 201 Created | Resource created |
+| 400 Bad Request | Invalid request |
+| 401 Unauthorized | Authentication required |
+| 403 Forbidden | Access denied |
+| 404 Not Found | Resource not found |
+| 500 Internal Server Error | Server error |
+
+## 🔮 Future Enhancements
+
+- [ ] Detailed external import reports.
+- [ ] External transaction date mapping.
+- [ ] Duplicate transaction detection.
+- [ ] External API URL validation and request timeouts.
+- [ ] Improved batch import error handling.
+- [ ] Automated unit and integration testing.
+- [ ] Swagger / OpenAPI documentation.
+
+## ⚙️ Getting Started
+
+### Prerequisites
+
+- Java 17 or later
+- Maven
 - MySQL
+- IntelliJ IDEA or any Java IDE
+- Postman
 
----
+### 1. Clone the Repository
+
+```bash
+git clone <your-repository-url>
+```
+
+### 2. Open the Project
+
+Open the cloned project in IntelliJ IDEA or your preferred Java IDE.
+
+### 3. Create MySQL Database
+
+```sql
+CREATE DATABASE bank_transaction_db;
+```
+
+### 4. Configure Database
+
+Update your `application.properties` file:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/bank_transaction_db
+spring.datasource.username=root
+spring.datasource.password=your_password
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+```
+
+### 5. Build the Project
+
+```bash
+mvn clean install
+```
+
+### 6. Run the Application
+
+```bash
+mvn spring-boot:run
+```
+
+### 7. Access the Application
+
+```text
+http://localhost:8080
+```
+
+Use Postman to test the available REST API endpoints.
+
+## 👨‍💻 Author
+
+**Bank Transaction Management System**
+
+Developed using Java 17, Spring Boot, Spring Security, Spring Data JPA, Hibernate, and MySQL.

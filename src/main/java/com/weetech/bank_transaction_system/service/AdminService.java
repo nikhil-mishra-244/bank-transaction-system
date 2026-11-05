@@ -25,14 +25,10 @@ public class AdminService {
     }
 
 
-//    Admin dashboard Data
+    //    Admin dashboard Data
     public AdminDashboardDTO getDashboard(LocalDate fromDate, LocalDate toDate) {
 
-        if ((fromDate == null) != (toDate == null)) {
-            throw new IllegalArgumentException("Both fromDate and toDate are required");
-        }
-
-        if (fromDate != null && fromDate.isAfter(toDate)) {
+        if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
             throw new IllegalArgumentException("fromDate cannot be after toDate");
         }
 
