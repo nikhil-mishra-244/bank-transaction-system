@@ -3,23 +3,25 @@
 
 A RESTful backend application developed using **Java 17 and Spring Boot** to manage users, banking transactions, account balances, and transaction history.
 
-The application supports secure authentication, CREDIT and DEBIT transactions, transaction filtering, administrative statistics, and importing transactions from an external API.
+The application provides secure JWT authentication, CREDIT and DEBIT transactions, transaction filtering, user profile management, administrative statistics, and external transaction imports.
 
 ## 🚀 Features
 
-- User registration and management.
+- User registration and login.
 - JWT-based authentication and authorization.
 - Role-based access control.
+- View and update user profiles.
+- Change account password.
 - Create CREDIT and DEBIT transactions.
 - Automatic account balance updates.
-- Transaction history and filtering.
+- View transaction history.
 - Filter transactions by type, status, and date range.
-- Soft delete transactions.
+- Soft-delete transactions.
 - View current account balance.
 - Transaction summary and statistics.
 - Admin dashboard.
 - Import transactions from an external API using Beeceptor.
-- Request validation and error handling.
+- Request validation and exception handling.
 
 ## 🛠️ Technologies Used
 
@@ -42,16 +44,17 @@ The application supports secure authentication, CREDIT and DEBIT transactions, t
 
 ```text
 src/main/java/
-└── com/example/banktransaction/
+└── com/weetech/bank_transaction_system/
     ├── config/
     ├── controller/
     ├── dto/
     ├── entity/
+    ├── enums/
     ├── exception/
     ├── repository/
     ├── security/
     ├── service/
-    └── BankTransactionApplication.java
+    └── specification/
 
 src/main/resources/
 └── application.properties
@@ -65,39 +68,79 @@ src/main/resources/
 http://localhost:8080
 ```
 
-### 👤 User Management
+### 🔐 1. Authentication APIs
+
+Base Path: `/api/v1/auth`
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/v1/users/register` | Register a new user |
-| GET | `/api/v1/users` | Get all users |
-| GET | `/api/v1/users/{id}` | Get user by ID |
-| DELETE | `/api/v1/users/{id}` | Delete a user |
+| POST | `/api/v1/auth/register` | Register a new user |
+| POST | `/api/v1/auth/login` | Login and generate JWT token |
 
-### 🔐 Authentication
+### 👤 2. User APIs
 
-Protected endpoints require a valid JWT token.
+Base Path: `/api/v1/users`
 
-```http
-Authorization: Bearer <your-jwt-token>
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/users/profile` | Get logged-in user profile |
+| PUT | `/api/v1/users/profile` | Update user profile |
+| PUT | `/api/v1/users/change-password` | Change account password |
+| POST | `/api/v1/users/logout` | Logout user |
 
-### 💳 Transaction Management
+### 💳 3. Transaction APIs
+
+Base Path: `/api/v1/transactions`
 
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/v1/transactions` | Create a transaction |
-| GET | `/api/v1/transactions` | Get transaction history |
+| GET | `/api/v1/transactions` | Get and filter transactions |
 | DELETE | `/api/v1/transactions/{transactionId}` | Soft-delete a transaction |
 | GET | `/api/v1/transactions/summary` | Get transaction summary |
-| GET | `/api/v1/transactions/balance` | Get current balance |
+| GET | `/api/v1/transactions/balance` | Get current account balance |
 | POST | `/api/v1/transactions/import` | Import external transactions |
 
-### 📊 Admin Dashboard
+### 📊 4. Admin APIs
+
+Base Path: `/api/v1/admin`
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/admin/dashboard` | Get system-wide statistics |
+| GET | `/api/v1/admin/dashboard` | Get admin dashboard statistics |
+
+**Optional Date Filters:**
+
+```http
+GET /api/v1/admin/dashboard?fromDate=2026-11-01&toDate=2026-11-30
+```
+
+### 🔎 Transaction Filtering and Pagination
+
+The transaction listing API supports the following query parameters:
+
+| Parameter | Description |
+|---|---|
+| `type` | Filter by CREDIT or DEBIT |
+| `status` | Filter by PENDING, SUCCESS, or FAILED |
+| `startDate` | Filter transactions from a date and time |
+| `endDate` | Filter transactions up to a date and time |
+| `page` | Page number (default: 0) |
+| `size` | Number of records per page (default: 10) |
+
+**Example:**
+
+```http
+GET /api/v1/transactions?type=DEBIT&status=SUCCESS&page=0&size=10
+```
+
+### 🔑 Authentication
+
+Protected endpoints require a valid JWT Bearer token.
+
+```http
+Authorization: Bearer <your-jwt-token>
+```
 
 ## 📝 Transaction Examples
 
@@ -119,7 +162,7 @@ POST /api/v1/transactions
 }
 ```
 
-**Transaction Types:**
+**Supported Transaction Types:**
 
 - `CREDIT` – Adds money to the account.
 - `DEBIT` – Deducts money from the account.
@@ -129,23 +172,6 @@ POST /api/v1/transactions
 - `PENDING`
 - `SUCCESS`
 - `FAILED`
-
-### Filter Transactions
-
-Transactions can be filtered by type, status, and date range.
-
-| Parameter | Example |
-|---|---|
-| type | `CREDIT` |
-| status | `SUCCESS` |
-| startDate | `2026-11-01T00:00:00` |
-| endDate | `2026-11-30T23:59:59` |
-
-**Example:**
-
-```http
-GET /api/v1/transactions?type=DEBIT&status=SUCCESS
-```
 
 ### Transaction Summary
 
@@ -171,8 +197,18 @@ GET /api/v1/transactions/summary
 
 ### Current Balance
 
+**Endpoint:**
+
 ```http
 GET /api/v1/transactions/balance
+```
+
+**Example Response:**
+
+```json
+{
+  "balance": 38000.00
+}
 ```
 
 Returns the current authenticated user's account balance.
@@ -181,7 +217,7 @@ Returns the current authenticated user's account balance.
 
 The application supports importing transactions from an external REST API using Beeceptor.
 
-**Endpoint:**
+**Import Endpoint:**
 
 ```http
 POST /api/v1/transactions/import
@@ -219,8 +255,8 @@ POST /api/v1/transactions/import
 **Import Process:**
 
 1. The authenticated user sends the external API URL.
-2. The application fetches transaction data.
-3. The response is mapped to the transaction DTO.
+2. The application fetches transaction data from the external API.
+3. The response is mapped to the application's transaction DTO.
 4. Transactions are processed using the existing transaction creation logic.
 5. Account balances are updated according to transaction types.
 
@@ -228,9 +264,9 @@ POST /api/v1/transactions/import
 
 - The user ID is obtained from the JWT authentication principal.
 - External transaction IDs are not stored in the database.
-- Transaction dates are not currently mapped during import.
+- External transaction dates are not currently mapped.
 - Imported transactions follow existing CREDIT and DEBIT business rules.
-- Only trusted external API URLs should be used.
+- The import endpoint currently returns a success message after processing.
 
 ## 📋 Business Rules
 
@@ -242,7 +278,7 @@ POST /api/v1/transactions/import
 - Transactions support PENDING, SUCCESS, and FAILED statuses.
 - Deleted transactions are soft-deleted.
 - Users can access their own transaction information according to authorization rules.
-- Administrative APIs are restricted according to user roles.
+- Admin APIs are restricted according to user roles.
 
 ## 📡 HTTP Status Codes
 
@@ -250,6 +286,7 @@ POST /api/v1/transactions/import
 |---|---|
 | 200 OK | Request successful |
 | 201 Created | Resource created |
+| 204 No Content | Resource deleted successfully |
 | 400 Bad Request | Invalid request |
 | 401 Unauthorized | Authentication required |
 | 403 Forbidden | Access denied |
@@ -258,7 +295,7 @@ POST /api/v1/transactions/import
 
 ## 🔮 Future Enhancements
 
-- [ ] Detailed external import reports.
+- [ ] Detailed external transaction import reports.
 - [ ] External transaction date mapping.
 - [ ] Duplicate transaction detection.
 - [ ] External API URL validation and request timeouts.
