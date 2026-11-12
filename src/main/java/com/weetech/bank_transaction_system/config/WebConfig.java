@@ -1,3 +1,4 @@
+
 package com.weetech.bank_transaction_system.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -10,12 +11,22 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173","https://transaction-management-system-kohl.vercel.app")
+        registry.addMapping("/**")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "https://transaction-management-system-kohl.vercel.app"
+                )
                 .allowedMethods(
-                        "GET", "POST", "PUT", "DELETE", "OPTIONS"
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE",
+                        "OPTIONS"
                 )
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .exposedHeaders("Authorization")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
